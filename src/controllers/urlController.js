@@ -8,6 +8,12 @@ module.exports = class URLController {
     if (!originalUrl)
       return res.status(400).send({ error: "Não foi especificada a URL." });
 
+    if (await Urls.findOne({ originalUrl: originalUrl })) {
+      const urlCreated = await Urls.find({ originalUrl: originalUrl });
+
+      return res.json(urlCreated);
+    }
+
     const shortUrl = shortId.generate();
 
     const newUrl = await Urls.create({ originalUrl, shortUrl });
@@ -18,7 +24,7 @@ module.exports = class URLController {
   static redirectURL = async (req, res) => {
     const { url } = req.params;
 
-    const urlValidation = await Urls.findOneAndUpdate({ shortUrl: url });
+    const urlValidation = await Urls.findOne({ shortUrl: url });
     if (urlValidation) {
       await Urls.updateOne(
         { shortUrl: url },
